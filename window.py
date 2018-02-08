@@ -1,13 +1,12 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QFileDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QFileDialog, QLabel, QSpinBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
 import lineAddingSpace
 import numChanger
-import subAdvance
-import subDelay
+import subTimeChange
 
 class App(QWidget):
     def __init__(self):
@@ -24,16 +23,17 @@ class App(QWidget):
 
     def positions(self):
         self.width = 340
-        self.height = 280
+        self.height = 300
         self.leftSideX=20
-        self.boxX1=70
-        self.boxX2=180
+        self.boxX1=40
+        self.boxX2=220
 
-        self.l1=20
-        self.l2=70
+        self.l0=10
+        self.l1=25
+        self.l2=80
         self.l3=140
-        self.l4=170
-        self.l5=220
+        self.l4=200
+        self.l5=250
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -44,15 +44,21 @@ class App(QWidget):
         self.fileSelect.resize(300,40)
         self.fileSelect.clicked.connect(self.openSubFile)
 
-        fileLabel = QLabel()
-        fileLabel.setText("No File Selected")
-        fileLabel.move(self.leftSideX,self.l2)
+        self.fileLabel = QLabel(self)
+        self.fileLabel.setText("No File Selected")
+        self.fileLabel.move(self.width/2-40,self.l0)
+
+        # Create lavel for line number textBox
+        self.lineLabel = QLabel(self)
+        self.lineLabel.move(self.width/2-100,self.l2)
+        self.lineLabel.resize(200,40)
+        self.lineLabel.setText("Line Number:")
 
         # Create textbox
         self.textBox_lineNumber = QLineEdit(self)
-        self.textBox_lineNumber.move(self.width/2-40, self.l2)
+        self.textBox_lineNumber.move(self.width/2-10, self.l2)
         self.textBox_lineNumber.resize(80,40)
-        self.textBox_lineNumber.setText("LINE NUMBER")
+        self.textBox_lineNumber.setText("0")
 
         button1 = QPushButton('Add subtitles', self)
         button1.move(self.boxX1,self.l3)
@@ -63,10 +69,19 @@ class App(QWidget):
         button2.clicked.connect(self.fixNums)
 
         # Create textbox
-        self.textBox_time = QLineEdit(self)
-        self.textBox_time.move(self.width/2-140,self.l4)
-        self.textBox_time.resize(280,40)
-        self.textBox_time.setText("Time to adjust(Seconds)")
+        # self.textBox_time = QLineEdit(self)
+        # self.textBox_time.move(self.width/2-140,self.l4)
+        # self.textBox_time.resize(280,40)
+        # self.textBox_time.setText("Time to adjust(Seconds)")
+
+        self.timeLabel = QLabel(self)
+        self.timeLabel.move(self.width/2-120,self.l4)
+        self.timeLabel.resize(200,40)
+        self.timeLabel.setText("Time(Sec):")
+
+        self.timeValue = QSpinBox(self)
+        self.timeValue.move(self.width/2-40,self.l4)
+        self.timeValue.resize(120,40)
 
         button3 = QPushButton('Sub Advance', self)
         button3.move(self.boxX1,self.l5)
@@ -95,7 +110,7 @@ class App(QWidget):
                 print("Choose Line number")
 
         if(n==2):
-            if(self.textBox_time.text().isnumeric()):
+            if(self.timeValue.value()):
                 o+=4
             else:
                 print("Select time in seconds")
@@ -116,6 +131,7 @@ class App(QWidget):
             self.fileSelect = QPushButton('self.subFileName',self)
             print("path=",self.path)
             print(self.subFileName)
+            self.fileLabel.setText("")
 
     @pyqtSlot()
     def addsubs(self):
@@ -133,17 +149,17 @@ class App(QWidget):
     @pyqtSlot()
     def delay(self):
         line=self.textBox_lineNumber.text()
-        time=self.textBox_time.text()
+        time=self.timeValue.value()
         if(self.validInput(2)==7):
-            subDelay.advance(line,time,self.path,self.subFileName)
+            subTimeChange.changeTime(line,time,self.path,self.subFileName,0)
         print('Sub delay selected')
 
     @pyqtSlot()
     def advance(self):
         line=self.textBox_lineNumber.text()
-        time=self.textBox_time.text()
+        time=self.timeValue.value()
         if(self.validInput(2)==7):
-            subAdvance.advance(line,time,self.path,self.subFileName)
+            subTimeChange.changeTime(line,time,self.path,self.subFileName,1)
         print('Sub Advance selected')
 
 if __name__ == '__main__':
